@@ -26,6 +26,7 @@ interface Anthropometry {
   peso: number
   altura: number
   bodyFat: number
+  isManualBodyFat: boolean
 }
 
 interface Perimeters {
@@ -101,84 +102,226 @@ interface NutritionPlan {
   refeicoes: Meal[]
 }
 
-// Base de exercícios predefinidos por grupo muscular
+// Base de exercícios expandida por grupo muscular
 const exerciseDatabase = {
   peito: [
-    'Supino reto com barra',
-    'Supino inclinado com halteres',
-    'Supino declinado',
-    'Crucifixo com halteres',
-    'Flexão de braço',
-    'Supino com halteres',
-    'Crossover no cabo',
-    'Mergulho no paralelo'
+    // Exercícios livres / pesos livres
+    'Supino plano (barra)',
+    'Supino plano (halteres)',
+    'Supino inclinado (barra)',
+    'Supino inclinado (halteres)',
+    'Supino declinado (barra)',
+    'Supino declinado (halteres)',
+    'Crucifixo plano (halteres)',
+    'Crucifixo inclinado (halteres)',
+    'Crucifixo declinado (halteres)',
+    'Flexões (tradicional)',
+    'Flexões inclinada',
+    'Flexões declinada',
+    'Flexões com carga',
+    'Flexões explosivas / pliométricas',
+    // Máquinas / cabos
+    'Supino máquina (plano)',
+    'Supino máquina (inclinado)',
+    'Supino máquina (declinado)',
+    'Crossover no cabo (alto → baixo)',
+    'Crossover no cabo (baixo → alto)',
+    'Crossover no cabo (horizontal)',
+    'Pec deck (voador)',
+    'Chest press (horizontal)',
+    'Chest press (convergente)'
   ],
   costas: [
-    'Puxada frontal',
-    'Remada curvada',
-    'Remada unilateral',
-    'Levantamento terra',
-    'Puxada alta',
-    'Remada baixa',
-    'Pull-over',
-    'Barra fixa'
-  ],
-  biceps: [
-    'Rosca direta com barra',
-    'Rosca alternada com halteres',
-    'Rosca martelo',
-    'Rosca concentrada',
-    'Rosca no cabo',
-    'Rosca 21',
-    'Rosca scott',
-    'Rosca inversa'
-  ],
-  triceps: [
-    'Tríceps testa',
-    'Tríceps francês',
-    'Mergulho entre bancos',
-    'Tríceps pulley',
-    'Tríceps coice',
-    'Supino fechado',
-    'Tríceps overhead',
-    'Extensão unilateral'
+    // Exercícios livres / pesos livres
+    'Puxada na barra fixa (pegada pronada)',
+    'Puxada na barra fixa (pegada supinada)',
+    'Puxada na barra fixa (pegada neutra)',
+    'Puxada na barra fixa (pegada aberta)',
+    'Puxada na barra fixa (pegada fechada)',
+    'Barra fixa com peso adicional',
+    'Remada curvada (barra)',
+    'Remada curvada (halteres)',
+    'Remada unilateral com halter',
+    'Remada cavalinho (T-bar row)',
+    'Deadlift (convencional)',
+    'Deadlift (sumo)',
+    'Deadlift (romeno)',
+    'Deadlift (stiff)',
+    'Good mornings',
+    'Shrugs (halteres)',
+    'Shrugs (barra)',
+    // Máquinas / cabos
+    'Puxada frente (barra reta)',
+    'Puxada frente (barra V)',
+    'Puxada frente (corda)',
+    'Remada baixa (barra reta)',
+    'Remada baixa (triangulo)',
+    'Remada baixa (corda)',
+    'Remada máquina (convergente)',
+    'Remada máquina (articulada)',
+    'Remada máquina (hammer strength)',
+    'Pulldown unilateral em cabo',
+    'Pull-over (cabo)',
+    'Pull-over (máquina)',
+    'Shrug máquina'
   ],
   ombros: [
-    'Desenvolvimento com barra',
-    'Desenvolvimento com halteres',
-    'Elevação lateral',
-    'Elevação frontal',
-    'Elevação posterior',
-    'Remada alta',
+    // Exercícios livres / pesos livres
+    'Desenvolvimento militar (barra)',
+    'Desenvolvimento com halteres (sentado)',
+    'Desenvolvimento com halteres (em pé)',
     'Arnold press',
-    'Desenvolvimento militar'
+    'Elevação lateral (halteres)',
+    'Elevação frontal (halteres)',
+    'Elevação frontal (barra)',
+    'Elevação frontal (disco)',
+    'Elevação posterior (halteres, inclinado)',
+    'OHP (Overhead Press)',
+    'Handstand push-up (peso corporal)',
+    // Máquinas / cabos
+    'Desenvolvimento máquina (vertical press)',
+    'Elevação lateral na máquina',
+    'Elevação frontal com cabo',
+    'Face pull (cabo)',
+    'Peck deck invertido (posterior de ombro)'
   ],
-  pernas: [
-    'Agachamento livre',
-    'Leg press',
-    'Extensão de pernas',
-    'Flexão de pernas',
-    'Stiff',
-    'Afundo',
+  quadriceps: [
+    'Agachamento livre (barra alta)',
+    'Agachamento livre (barra baixa)',
+    'Front squat',
+    'Overhead squat',
     'Agachamento búlgaro',
-    'Cadeira adutora'
+    'Lunges (avanço) – halteres',
+    'Lunges (avanço) – barra',
+    'Step-up em banco',
+    'Sissy squat',
+    'Hack squat (máquina)',
+    'Leg press (horizontal)',
+    'Leg press (45º)',
+    'Leg press (vertical)',
+    'Extensão de pernas (máquina)'
   ],
-  panturrilha: [
-    'Panturrilha em pé',
-    'Panturrilha sentado',
-    'Panturrilha no leg press',
-    'Panturrilha unilateral'
+  gluteos_isquiotibiais: [
+    'Peso morto romeno',
+    'Peso morto stiff',
+    'Glute bridge (com barra)',
+    'Glute bridge (halteres)',
+    'Hip thrust (barra)',
+    'Hip thrust (máquina)',
+    'Elevação pélvica no chão (peso corporal)',
+    'Cadeira flexora (deitado)',
+    'Cadeira flexora (sentado)',
+    'Flexão de perna em cabo (kickback)',
+    'Pull-through no cabo'
+  ],
+  gemeos: [
+    'Elevação de gémeos em pé (peso corporal)',
+    'Elevação de gémeos em pé (barra)',
+    'Elevação de gémeos em pé (halteres)',
+    'Elevação de gémeos sentado (halteres no colo)',
+    'Elevação de gémeos sentado (máquina)',
+    'Donkey calf raises',
+    'Máquina gémeos (em pé)',
+    'Máquina gémeos (sentado)',
+    'Máquina gémeos (leg press)'
+  ],
+  biceps: [
+    // Exercícios livres / pesos livres
+    'Rosca direta (barra reta)',
+    'Rosca direta (barra W)',
+    'Rosca direta (halteres)',
+    'Rosca alternada (halteres)',
+    'Rosca martelo',
+    'Rosca concentrada',
+    'Rosca Scott (barra)',
+    'Rosca Scott (halteres)',
+    'Chin-up (barra fixa supinada, peso corporal)',
+    // Máquinas / cabos
+    'Rosca cabo (barra reta)',
+    'Rosca cabo (corda)',
+    'Rosca cabo (barra W)',
+    'Rosca em banco Scott máquina',
+    'Rosca unilateral cabo baixo',
+    'Rosca martelo polia'
+  ],
+  triceps: [
+    // Exercícios livres / pesos livres
+    'Tríceps francês (halteres)',
+    'Tríceps francês (barra W)',
+    'Tríceps francês (barra reta)',
+    'Tríceps testa (skull crusher)',
+    'Mergulho em banco (peso corporal)',
+    'Mergulho em banco (com carga)',
+    'Dips em paralelas (peso corporal)',
+    'Dips em paralelas (com carga)',
+    'Fechamento de supino (close grip bench press)',
+    // Máquinas / cabos
+    'Tríceps polia barra reta',
+    'Tríceps polia corda',
+    'Tríceps polia barra V',
+    'Kickback (halter)',
+    'Kickback (cabo)',
+    'Extensão unilateral polia alta'
   ],
   abdomen: [
-    'Abdominal supra',
-    'Abdominal infra',
-    'Prancha',
-    'Abdominal oblíquo',
-    'Elevação de pernas',
-    'Russian twist',
-    'Mountain climber',
-    'Bicicleta'
+    // Peso corporal
+    'Crunch (tradicional)',
+    'Crunch (reverso)',
+    'Crunch (bicicleta)',
+    'Crunch (oblíquo)',
+    'Sit-up',
+    'Prancha (frontal)',
+    'Prancha (lateral)',
+    'Prancha (com variações)',
+    'Elevação de pernas suspenso (barra fixa)',
+    'Elevação de pernas no banco',
+    'Dragon flag',
+    'Ab rollout (com roda)',
+    'Ab rollout (com barra)',
+    // Máquinas / cabos
+    'Crunch máquina',
+    'Crunch polia alta (joelhos no chão)',
+    'Side bend polia (oblíquos)',
+    'Ab twist (máquina de rotação)'
+  ],
+  trapezio: [
+    'Encolhimento (shrug barra)',
+    'Encolhimento (shrug halteres)',
+    'Encolhimento (shrug máquina)',
+    'Remada alta (barra)',
+    'Remada alta (halteres)',
+    'Remada alta (cabo)',
+    'Face pull (polia)',
+    'Upright row (barra reta)',
+    'Upright row (barra W)'
+  ],
+  antebraco: [
+    'Rosca punho (flexão de punho, barra)',
+    'Rosca punho (flexão de punho, halteres)',
+    'Extensão de punho (barra)',
+    'Extensão de punho (halteres)',
+    'Farmer\'s walk (halteres)',
+    'Farmer\'s walk (trap bar)',
+    'Pinch grip hold (segurar discos)',
+    'Dead hang (na barra fixa)'
   ]
+}
+
+// Função para gerar frases inspiradoras
+const generateInspirationalQuote = (nome: string) => {
+  const quotes = [
+    `${nome}, sua jornada de transformação começa hoje. Cada repetição te aproxima do seu melhor!`,
+    `${nome}, lembre-se: músculos são construídos com consistência, não com perfeição. Vamos em frente!`,
+    `${nome}, você tem o poder de esculpir o corpo dos seus sonhos. Acredite no processo!`,
+    `${nome}, cada treino é um investimento no seu futuro. Sua versão mais forte te espera!`,
+    `${nome}, a disciplina de hoje é a liberdade de amanhã. Continue firme na sua jornada!`,
+    `${nome}, seu corpo pode aguentar. É a sua mente que você precisa convencer. Você consegue!`,
+    `${nome}, grandes transformações começam com pequenos passos. Cada dia conta!`,
+    `${nome}, você não está apenas construindo músculos, está construindo caráter. Siga forte!`,
+    `${nome}, a dor que você sente hoje será a força que você sentirá amanhã. Persista!`,
+    `${nome}, seu único limite é você mesmo. Quebre suas barreiras e alcance novos patamares!`
+  ]
+  return quotes[Math.floor(Math.random() * quotes.length)]
 }
 
 export default function FitnessAssessment() {
@@ -197,7 +340,8 @@ export default function FitnessAssessment() {
   const [anthropometry, setAnthropometry] = useState<Anthropometry>({
     peso: 0,
     altura: 0,
-    bodyFat: 0
+    bodyFat: 0,
+    isManualBodyFat: false
   })
   
   const [perimeters, setPerimeters] = useState<Perimeters>({
@@ -350,6 +494,12 @@ export default function FitnessAssessment() {
   }
 
   const calculateBodyFat = () => {
+    // Se foi inserido manualmente, usar o valor manual
+    if (anthropometry.isManualBodyFat && anthropometry.bodyFat > 0) {
+      return anthropometry.bodyFat.toFixed(1)
+    }
+    
+    // Senão, calcular automaticamente
     if (anthropometry.peso && anthropometry.altura && personalData.idade && personalData.sexo) {
       const imc = parseFloat(calculateIMC())
       const sexMultiplier = personalData.sexo === 'masculino' ? 1 : 0
@@ -553,7 +703,231 @@ export default function FitnessAssessment() {
 
   // Função para exportar dados
   const exportToPDF = () => {
-    window.print()
+    // Criar uma nova janela com o conteúdo formatado para PDF
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const inspirationalQuote = generateInspirationalQuote(personalData.nomeCompleto || 'Atleta')
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Avaliação ${personalData.nomeCompleto}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; }
+          h1 { text-align: center; color: #333; margin-bottom: 30px; }
+          h2 { color: #555; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+          h3 { color: #666; margin-top: 20px; }
+          .section { margin-bottom: 20px; }
+          .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+          .metric { background: #f5f5f5; padding: 10px; border-radius: 5px; text-align: center; }
+          .training-section { margin-bottom: 30px; }
+          .nutrition-section { margin-bottom: 30px; }
+          .exercise-list { margin-left: 20px; }
+          .meal-item { margin-bottom: 10px; padding: 8px; background: #f9f9f9; border-radius: 4px; }
+          .disclaimer { margin-top: 40px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; font-size: 12px; line-height: 1.6; }
+          .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
+          .signature-box { text-align: center; width: 200px; }
+          .signature-line { border-bottom: 1px solid #000; margin-bottom: 5px; height: 40px; }
+          .inspirational { margin-top: 30px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; text-align: center; font-style: italic; font-size: 16px; }
+          .footer { margin-top: 20px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { margin: 0; } }
+        </style>
+      </head>
+      <body>
+        <h1>Avaliação ${personalData.nomeCompleto || 'Aluno'}</h1>
+        
+        <div class="section">
+          <h2>📍 Dados Pessoais</h2>
+          <div class="grid">
+            <div><strong>Nome:</strong> ${personalData.nomeCompleto || 'Não informado'}</div>
+            <div><strong>Idade:</strong> ${personalData.idade || 'Não informado'} anos</div>
+            <div><strong>Sexo:</strong> ${personalData.sexo || 'Não informado'}</div>
+            <div><strong>Data de início:</strong> ${personalData.dataInicio || 'Não informado'}</div>
+            <div><strong>Contato:</strong> ${personalData.contato || 'Não informado'}</div>
+            <div><strong>Nível de treino:</strong> ${personalData.nivelTreino || 'Não informado'}</div>
+          </div>
+          ${personalData.historicoSaude ? `<div style="margin-top: 10px;"><strong>Histórico de saúde:</strong> ${personalData.historicoSaude}</div>` : ''}
+          ${personalData.tempoCardio > 0 ? `<div style="margin-top: 10px;"><strong>Cardio:</strong> ${personalData.tempoCardio} min/sessão (${calculateCardioCalories()} kcal queimadas)</div>` : ''}
+        </div>
+
+        ${(anthropometry.peso || anthropometry.altura) ? `
+        <div class="section">
+          <h2>📊 Antropometria</h2>
+          <div class="grid">
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">${anthropometry.peso} kg</div>
+              <div>Peso</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #10b981;">${anthropometry.altura} cm</div>
+              <div>Altura</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #8b5cf6;">${calculateIMC()}</div>
+              <div>IMC</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${calculateBodyFat()}%</div>
+              <div>Body Fat</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #ef4444;">${calculateTMB()} kcal</div>
+              <div>TMB</div>
+            </div>
+          </div>
+          <div class="grid" style="margin-top: 15px;">
+            <div class="metric">
+              <div style="font-size: 16px; font-weight: bold;">${calculateLeanMass()} kg</div>
+              <div>Massa Magra</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 16px; font-weight: bold;">${calculateFatMass()} kg</div>
+              <div>Massa Gorda</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 16px; font-weight: bold;">${calculateTDEE()} kcal</div>
+              <div>TDEE</div>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+
+        ${trainingPlan.diasTreino.length > 0 ? `
+        <div class="training-section">
+          <h2>🏋️‍♂️ Plano de Treino</h2>
+          <div class="grid">
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">${trainingPlan.frequenciaSemanal}</div>
+              <div>dias/semana</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #10b981;">${trainingPlan.quantidadeTreinos}</div>
+              <div>treinos total</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #8b5cf6;">${trainingPlan.tempoSessao}</div>
+              <div>min/sessão</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${trainingPlan.divisao}</div>
+              <div>divisão</div>
+            </div>
+          </div>
+          
+          ${trainingPlan.diasTreino.map((day, index) => `
+            <h3>${day.nome}</h3>
+            <div style="margin-left: 20px;">
+              <div style="margin-bottom: 10px;"><strong>Grupos musculares:</strong> ${day.grupoMuscular.join(', ')}</div>
+              <div class="exercise-list">
+                ${day.exercicios.map(exercise => `
+                  <div style="margin-bottom: 5px;">
+                    <strong>${exercise.nome}</strong> - ${exercise.series}x${exercise.repeticoes} - ${exercise.descanso}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        ${calculateNutritionGoals() ? `
+        <div class="nutrition-section">
+          <h2>🍽️ Plano Nutricional</h2>
+          <div class="grid">
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #10b981;">${calculateNutritionGoals()?.calories} kcal</div>
+              <div>Meta Diária</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #ef4444;">${calculateNutritionGoals()?.protein}g</div>
+              <div>Proteínas</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">${calculateNutritionGoals()?.carbs}g</div>
+              <div>Carboidratos</div>
+            </div>
+            <div class="metric">
+              <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">${calculateNutritionGoals()?.fat}g</div>
+              <div>Gorduras</div>
+            </div>
+          </div>
+          
+          ${nutritionPlan.refeicoes.length > 0 ? `
+            <h3>Distribuição das Refeições:</h3>
+            ${nutritionPlan.refeicoes.map(meal => `
+              <div class="meal-item">
+                <strong>${meal.nome}</strong> - ${meal.calorias} kcal | P: ${meal.proteinas}g | C: ${meal.carboidratos}g | G: ${meal.gorduras}g
+              </div>
+            `).join('')}
+          ` : ''}
+        </div>
+        ` : ''}
+
+        ${goals.objetivoPrincipal ? `
+        <div class="section">
+          <h2>🎯 Objetivos</h2>
+          <div><strong>Objetivo principal:</strong> ${
+            goals.objetivoPrincipal === 'ganhar_massa' ? 'Ganhar massa muscular' :
+            goals.objetivoPrincipal === 'perder_gordura' ? 'Perder gordura' :
+            goals.objetivoPrincipal === 'recomposicao' ? 'Recomposição corporal' :
+            'Manutenção'
+          }</div>
+          ${goals.objetivosSecundarios ? `<div style="margin-top: 10px;"><strong>Objetivos secundários:</strong> ${goals.objetivosSecundarios}</div>` : ''}
+          ${goals.prazos ? `<div style="margin-top: 10px;"><strong>Prazos/metas:</strong> ${goals.prazos}</div>` : ''}
+        </div>
+        ` : ''}
+
+        <div class="section">
+          <h2>📈 Acompanhamento e Checkpoints</h2>
+          <div class="grid">
+            <div style="padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <strong>Pesagem semanal:</strong> Sempre no mesmo dia e horário (preferência de manhã antes de comer)
+            </div>
+            <div style="padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <strong>Fotos de progresso:</strong> A cada 2 semanas
+            </div>
+            <div style="padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <strong>Reavaliação de medidas:</strong> A cada 4 semanas ou mediante instrução do avaliador
+            </div>
+            <div style="padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <strong>Testes de performance:</strong> A cada 8-12 semanas
+            </div>
+          </div>
+        </div>
+
+        <div class="inspirational">
+          ${inspirationalQuote}
+        </div>
+
+        <div class="disclaimer">
+          <strong>DECLARAÇÃO DE RESPONSABILIDADE:</strong><br>
+          Declaro, para os devidos efeitos, que tenho pleno conhecimento de que o avaliador/treinador não possui formação académica ou profissional nas áreas de Desporto, Nutrição ou Suplementação Desportiva, sendo todas as orientações, avaliações e recomendações fornecidas baseadas exclusivamente na sua experiência prática e no conhecimento adquirido de forma autónoma. Reconheço e aceito que a participação em qualquer atividade ou plano decorrente desta orientação é da minha inteira responsabilidade, isentando o referido avaliador/treinador de qualquer responsabilidade civil, profissional ou legal decorrente da utilização das informações transmitidas.
+        </div>
+
+        <div class="signatures">
+          <div class="signature-box">
+            <div class="signature-line"></div>
+            <div><strong>Assinatura do Avaliador</strong></div>
+            <div style="font-size: 12px; margin-top: 5px;">Data: ___/___/______</div>
+          </div>
+          <div class="signature-box">
+            <div class="signature-line"></div>
+            <div><strong>Assinatura do Avaliado</strong></div>
+            <div style="font-size: 12px; margin-top: 5px;">Data: ___/___/______</div>
+          </div>
+        </div>
+
+        <div class="footer">
+          Processado a computador
+        </div>
+      </body>
+      </html>
+    `)
+    
+    printWindow.document.close()
+    printWindow.print()
   }
 
   const exportToText = () => {
@@ -648,7 +1022,7 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Sistema de Avaliação Fitness Completo
+            Avalia-o
           </h1>
           <p className="text-gray-600">
             Avaliação completa com planos de treino personalizados e nutrição automatizada
@@ -659,7 +1033,7 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
           <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 gap-1">
             <TabsTrigger value="personal" className="flex items-center gap-1 text-xs">
               <User className="w-3 h-3" />
-              <span className="hidden sm:inline">Pessoais</span>
+              <span className="hidden sm:inline">Pessoal</span>
             </TabsTrigger>
             <TabsTrigger value="anthropometry" className="flex items-center gap-1 text-xs">
               <Calculator className="w-3 h-3" />
@@ -768,7 +1142,7 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="tempoCardio">Tempo de Cardio (minutos)</Label>
+                    <Label htmlFor="tempoCardio">Tempo de Cardio Semanal (minutos)</Label>
                     <Input
                       id="tempoCardio"
                       type="number"
@@ -835,7 +1209,14 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
                       type="number"
                       step="0.1"
                       value={anthropometry.bodyFat || ''}
-                      onChange={(e) => setAnthropometry({...anthropometry, bodyFat: parseFloat(e.target.value) || 0})}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0
+                        setAnthropometry({
+                          ...anthropometry, 
+                          bodyFat: value,
+                          isManualBodyFat: value > 0
+                        })
+                      }}
                       placeholder="Ex: 15.5"
                     />
                   </div>
@@ -858,6 +1239,9 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
                         <Badge className={`${report.bfCategory.color} text-white text-xs mt-1`}>
                           {report.bfCategory.category}
                         </Badge>
+                        {anthropometry.isManualBodyFat && (
+                          <div className="text-xs text-blue-500 mt-1">Manual</div>
+                        )}
                       </div>
                       <div className="text-center">
                         <div className="font-bold text-lg text-purple-600">{calculateLeanMass()} kg</div>
@@ -1877,13 +2261,13 @@ Data do relatório: ${new Date().toLocaleDateString('pt-BR')}
                     <h3 className="font-semibold text-lg mb-3">📈 Acompanhamento e Checkpoints</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="p-3 bg-gray-50 rounded-lg">
-                        <strong>Pesagem semanal:</strong> Sempre no mesmo dia e horário
+                        <strong>Pesagem semanal:</strong> Sempre no mesmo dia e horário (preferência de manhã antes de comer)
                       </div>
                       <div className="p-3 bg-gray-50 rounded-lg">
                         <strong>Fotos de progresso:</strong> A cada 2 semanas
                       </div>
                       <div className="p-3 bg-gray-50 rounded-lg">
-                        <strong>Reavaliação de medidas:</strong> A cada 4 semanas
+                        <strong>Reavaliação de medidas:</strong> A cada 4 semanas ou mediante instrução do avaliador
                       </div>
                       <div className="p-3 bg-gray-50 rounded-lg">
                         <strong>Testes de performance:</strong> A cada 8-12 semanas
